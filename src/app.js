@@ -18,4 +18,49 @@ const mongoCLient = new MongoClient(process.env.DATABASE_URL)
     }
 const db = mongoCLient.db();
 
+app.post("/participants", async (request, response) => {
+
+    try{
+
+    } catch (erro) {
+        response.status(500).send(erro.message)
+    }
+})
+
+app.get("/participants", async (request, response) => {
+
+    try{
+
+    } catch (erro) {
+        response.status(500).send(erro.message)
+    }
+})
+
+app.post("/messages", async (request, response) => {
+
+    try{
+
+    } catch (erro) {
+        response.status(500).send(erro.message)
+    }
+})
+
+app.get("/messages", async (request, response) => {
+
+    try{
+
+    } catch (erro) {
+        response.status(500).send(erro.message)
+    }
+})
+
+app.post("/status", async (request, response) => {
+
+    try{
+
+    } catch (erro) {
+        response.status(500).send(erro.message)
+    }
+})
+
 app.listen(5000, console.log("Servidor rodando na porta 5000"))
