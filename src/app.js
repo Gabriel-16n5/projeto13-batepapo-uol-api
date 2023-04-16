@@ -121,9 +121,19 @@ app.get("/messages", async (request, response) => {
 })
 
 app.post("/status", async (request, response) => {
-
+    const {user} = request.headers;
+    if(!user) return response.status(404).send("validação do user");
+    const participant = await db.collection("participants").findOne({name: user});
+    if(!participant) return response.status(404).send("validação no banco");
     try{
-
+        const newTime = {
+            lastStatus: Date.now()
+        }
+        const updateUser = await db.collection("participants").updateOne(
+                {name: user},
+                {$set: newTime}
+        )
+        response.sendStatus(200);
     } catch (erro) {
         response.status(500).send(erro.message)
     }
