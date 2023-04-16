@@ -148,12 +148,22 @@ app.post("/status", async (request, response) => {
         
         try{
             let time = Date.now()
-            await db.collection("participants").deleteMany(
+            const deletedUser = await db.collection("participants").deleteMany(
             { lastStatus: { $lte: (time-10000) } }
         );
+        console.log(deletedUser)
+        if(deletedUser.deletedCount === 0) return;
+        const userExiting = { 
+            from: 'xxx',
+            to: 'Todos',
+            text: 'sai da sala...',
+            type: 'status',
+            time: dayjs().format('HH:mm:ss')
+        }
+        const exitUser = await db.collection("messages").insertOne(userExiting)
         return;
      } catch (erro) {
-            response.status(500).send(erro.message)
+            console.log(erro.message)
      }
     }
 
