@@ -63,9 +63,33 @@ app.get("/participants", async (request, response) => {
 })
 
 app.post("/messages", async (request, response) => {
+    const {to ,text ,type} = request.body;
+    const {user} = request.headers;
+
+    const userValidation = await db.collection("participants").findOne({name: user});
+    if(!userValidation) return response.status(422).send("validação do user");
+    const typeValidation = type.includes("message");
+    console.log(typeValidation)
+    if(!typeValidation) return response.status(422).send("validação do from");
+    const messageSchema = joi.object({
+        to: joi.string().required(),
+        text: joi.string().required(),
+        type: type
+    })
+    const validation = messageSchema.validate(request.body, {abortEarly: false});
+    if(validation.error) return response.status(422).send("validação do body");
+
+    const userMessage = {
+        from: user,
+        to: to,
+        text: text,
+        type: type,
+        time: dayjs().format('HH:mm:ss')
+    }
 
     try{
-
+        const holder = await db.collection("messages").insertOne(userMessage);
+        response.sendStatus(201)
     } catch (erro) {
         response.status(500).send(erro.message)
     }
