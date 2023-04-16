@@ -68,12 +68,13 @@ app.post("/messages", async (request, response) => {
 
     const userValidation = await db.collection("participants").findOne({name: user});
     if(!userValidation) return response.status(422).send("validação do user");
+    if(!type) return response.status(422).send("type obrigatório");
     const typeValidation = type.includes("message");
-    if(!typeValidation) return response.status(422).send("validação do from");
+    if(!typeValidation) return response.status(422).send("validação do type");
     const messageSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
-        type: type.required()
+        type: type
     })
     const validation = messageSchema.validate(request.body, {abortEarly: false});
     if(validation.error) return response.status(422).send("validação do body");
