@@ -122,29 +122,34 @@ app.get("/messages", async (request, response) => {
 
 app.post("/status", async (request, response) => {
     const {user} = request.headers;
-    if(!user) return response.status(404).send("validação do user");
-    const participant = await db.collection("participants").findOne({name: user});
-    if(!participant) return response.status(404).send("validação no banco");
+    String(user)
+    console.log(user)
     try{
+        if(!user) return response.status(404).send("validação do user");
+        const participant = await db.collection("participants").findOne({name: user});
+        console.log(participant)
+        if(!participant) return response.status(404).send("validação no banco");
         const newTime = {
             lastStatus: Date.now()
         }
-        const updateUser = await db.collection("participants").updateOne(
+        const updateuser = await db.collection("participants").updateOne(
                 {name: user},
                 {$set: newTime}
         )
-        response.sendStatus(201);
+        console.log(updateuser)
+        response.sendStatus(200);
     } catch (erro) {
         response.status(500).send(erro.message)
+        console.log(erro.message)
     }
 })
 
     async function removeParticipants(){
         
         try{
-            const time = Date.now()
+            let time = Date.now()
             await db.collection("participants").deleteMany(
-            { lastStatus: { $lte: time } }
+            { lastStatus: { $lte: (time-10000) } }
         );
         return;
      } catch (erro) {
