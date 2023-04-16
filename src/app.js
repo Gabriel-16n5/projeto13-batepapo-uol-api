@@ -125,7 +125,7 @@ app.post("/status", async (request, response) => {
     if(!user) return response.status(404).send("validação do user");
     const participant = await db.collection("participants").findOne({name: user});
     if(!participant) return response.status(404).send("validação no banco");
-    try{
+    try{displayHello
         const newTime = {
             lastStatus: Date.now()
         }
@@ -138,5 +138,20 @@ app.post("/status", async (request, response) => {
         response.status(500).send(erro.message)
     }
 })
+
+    async function removeParticipants(){
+        
+        try{
+            const time = Date.now()
+            await db.collection("participants").deleteMany(
+            { lastStatus: { $lte: time } }
+        );
+        return;
+     } catch (erro) {
+            response.status(500).send(erro.message)
+     }
+    }
+
+    setInterval(removeParticipants, 15000);
 
 app.listen(5000, console.log("Servidor rodando na porta 5000"))
