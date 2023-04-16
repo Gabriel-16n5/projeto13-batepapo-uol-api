@@ -19,9 +19,6 @@ const mongoCLient = new MongoClient(process.env.DATABASE_URL)
     }
 const db = mongoCLient.db();
 
-//
-    let userHolder;
-//
 app.post("/participants", async (request, response) => {
     const {name} = request.body;
 
@@ -126,8 +123,6 @@ app.get("/messages", async (request, response) => {
 app.post("/status", async (request, response) => {
     const {user} = request.headers;
     String(user)
-    userHolder = user
-    console.log(userHolder)
     try{
         if(!user) return response.status(404).send("validação do user");
         const participant = await db.collection("participants").findOne({name: user});
@@ -152,13 +147,17 @@ app.post("/status", async (request, response) => {
         
         try{
             let time = Date.now()
+            const userHolder = await db.collection("participants").findOne(
+                { lastStatus: { $lte: (time-10000) } }
+            );
             const deletedUser = await db.collection("participants").deleteMany(
             { lastStatus: { $lte: (time-10000) } }
         );
         console.log(deletedUser)
         if(deletedUser.deletedCount === 0) return;
+
         const userExiting = { 
-            from: userHolder,
+            from: userHolder.name,
             to: 'Todos',
             text: 'sai da sala...',
             type: 'status',
