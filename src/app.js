@@ -69,12 +69,11 @@ app.post("/messages", async (request, response) => {
     const userValidation = await db.collection("participants").findOne({name: user});
     if(!userValidation) return response.status(422).send("validação do user");
     const typeValidation = type.includes("message");
-    console.log(typeValidation)
     if(!typeValidation) return response.status(422).send("validação do from");
     const messageSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
-        type: type
+        type: type.required()
     })
     const validation = messageSchema.validate(request.body, {abortEarly: false});
     if(validation.error) return response.status(422).send("validação do body");
@@ -96,9 +95,13 @@ app.post("/messages", async (request, response) => {
 })
 
 app.get("/messages", async (request, response) => {
+    const {user} = request.headers;
+
+    const userValidation = await db.collection("participants").findOne({name: user});
+    if(!userValidation) return response.status(422).send("validação do user");
 
     try{
-
+        
     } catch (erro) {
         response.status(500).send(erro.message)
     }
