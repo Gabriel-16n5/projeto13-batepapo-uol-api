@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
-
+import joi from "joi";
+import dayjs from 'dayjs'
 const app = express();
 
 app.use(cors());
@@ -19,9 +20,33 @@ const mongoCLient = new MongoClient(process.env.DATABASE_URL)
 const db = mongoCLient.db();
 
 app.post("/participants", async (request, response) => {
+    const {name} = request.body;
+
+    const participantsSchema = joi.object({
+        name: joi.string().required()
+    })
+
+    const validation = participantsSchema.validate(request.body, {abortEarly: false});
+
+    if(validation.error) return response.sendStatus(422);
 
     try{
-
+        const ValidateUser = await db.collection("participants").findOne({name: name})
+        if(ValidateUser) return response.sendStatus(409);
+        const validUser = {
+            name: name,
+            lastStatus: Date.now()
+        }
+        const holderUser = await db.collection("participants").insertOne(validUser);
+        const mensagem = { 
+            from: name,
+            to: 'Todos',
+            text: 'entra na sala...',
+            type: 'status',
+            time: dayjs(validUser.lastStatus).format('HH:mm:ss')
+    }
+        const holderMsg = await db.collection("messages").insertOne(mensagem);
+        response.sendStatus(201);
     } catch (erro) {
         response.status(500).send(erro.message)
     }
