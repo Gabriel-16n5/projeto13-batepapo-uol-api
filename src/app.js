@@ -125,7 +125,7 @@ app.post("/status", async (request, response) => {
     if(!user) return response.status(404).send("validação do user");
     const participant = await db.collection("participants").findOne({name: user});
     if(!participant) return response.status(404).send("validação no banco");
-    try{displayHello
+    try{
         const newTime = {
             lastStatus: Date.now()
         }
@@ -133,7 +133,7 @@ app.post("/status", async (request, response) => {
                 {name: user},
                 {$set: newTime}
         )
-        response.sendStatus(200);
+        response.sendStatus(201);
     } catch (erro) {
         response.status(500).send(erro.message)
     }
