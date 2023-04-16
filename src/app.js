@@ -96,13 +96,25 @@ app.post("/messages", async (request, response) => {
 })
 
 app.get("/messages", async (request, response) => {
+    const limit = parseInt(request.query.limit);
+    if(limit <= 0) return response.status(422).send("validação do limit"); // falta validar string não númerica
+    if(isNaN(limit)) return response.status(422).send("validação do limit");
+    console.log(limit)
     const {user} = request.headers;
-
     const userValidation = await db.collection("participants").findOne({name: user});
     if(!userValidation) return response.status(422).send("validação do user");
 
     try{
-        
+        if(!limit){
+        const listMenssages = await db.collection("messages").find( 
+            { $or: [  { to: "Todos" } , { from: user }, { to: user } ] } 
+            ).toArray();
+        return response.send(listMenssages);
+    }
+        const listMenssages = await db.collection("messages").find( 
+            { $or: [  { to: "Todos" } , { from: user }, { to: user } ] } 
+            ).toArray();
+        return response.send(listMenssages.slice(-limit));
     } catch (erro) {
         response.status(500).send(erro.message)
     }
